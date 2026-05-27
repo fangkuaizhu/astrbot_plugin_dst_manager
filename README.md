@@ -87,6 +87,26 @@ sleep 90
 screen -ls              # 应看到 dst_master 和 dst_caves
 ```
 
+#### 1.7 端口映射
+
+DST 使用 UDP 端口与游戏客户端通信。默认配置下：
+
+| 分片 | 端口 |
+|---|---|
+| Master（地面） | 10999 |
+| Caves（洞穴） | 11000 |
+
+如果宿主机有防火墙或安全组，需要放行这两个端口。如果是 NAT 环境，需做端口转发：
+
+```bash
+# iptables 示例（NAT 端口 33257 → 内部 10999）
+iptables -t nat -A PREROUTING -p udp --dport 33257 -j REDIRECT --to-port 10999
+# 持久化规则
+iptables-save > /etc/iptables/rules.v4
+```
+
+游戏客户端通过 `c_connect("服务器IP", 端口)` 连接。
+
 ---
 
 ### 2. AstrBot 容器配置
@@ -157,7 +177,7 @@ WebUI → 插件管理 → DST 饥荒服务器管家 → 配置：
 | `dst_base` | `/dst-server` | DST 安装目录（容器内路径） |
 | `klei_root` | `/root/.klei` | Klei 存档根目录 |
 | `cluster` | `DSTWhalesCluster` | 集群名称 |
-| `startup_wait_seconds` | `90` | 启动等待秒数 |
+| `startup_wait_seconds` | `90` | 启动等待秒数（首次含大量模组下载时建议调大至 120~180） |
 | `graceful_term_wait` | `15` | 优雅停止等待秒数 |
 | `mod_steamcmd_timeout` | `180` | 模组下载超时秒数 |
 
@@ -174,7 +194,7 @@ WebUI → 插件管理 → DST 饥荒服务器管家 → 配置：
 | `/启动饥荒` | 启动服务器（约 90 秒） |
 | `/冻结饥荒` | 暂停进程（SIGSTOP，秒级恢复） |
 | `/解冻饥荒` | 恢复冻结的进程 |
-| `/恢复饥荒` | 同解冻 |
+| `/恢复饥荒` | 同 `/解冻饥荒`（别名） |
 | `/停服饥荒` | 完全关闭（SIGTERM → SIGKILL） |
 | `/重启饥荒` | 重启服务器 |
 | `/连接教程` | 显示客户端控制台直连方式 |
@@ -216,4 +236,46 @@ NapCat 与 QQ 的连接断开了。检查 NapCat 日志：`docker logs napcat | 
 
 **Q: 模组下载失败**
 
-检查宿主机能否执行 `docker run --rm cm2network/steamcmd ...`。部分 VPS 的 Docker 网络需要代理才能访问 Steam。确认 `docker.sock` 已挂载到 AstrBot 容器。
+检查宿主机能否执行 steamcmd 下载模组：
+
+```bash
+docker run --rm cm2network/steamcmd \
+  +login anonymous \
+  +workshop_download_item 322330 378160973 \
+  +quit
+```
+
+如果失败，常见原因：Docker 网络需要代理才能访问 Steam；或 `docker.sock` 未挂载到 AstrBot 容器。
+
+---
+
+**Q: DST 进程反复崩溃重启**
+
+最常见原因：
+- `cluster_token.txt` 缺失或无效 → 从 [Klei 官网](https://accounts.klei.com/account/game-servers) 重新获取
+- `cluster.ini` 中 `game_mode` 或 `max_players` 配置错误 → 检查配置文件语法
+
+查看启动日志：
+
+```bash
+cat ~/.klei/DoNotStarveTogether/DSTWhalesCluster/Master/server_log.txt | tail -30
+```
+
+---
+
+**Q: 装完模组不生效**
+
+可能原因：
+- 模组有依赖链，steamcmd 只下载了本体，依赖的子模组未自动安装
+- `modoverrides.lua` 格式错误导致 DST 静默跳过 → 用 Lua 语法检查工具验证
+- 没有重启服务器：模组需要 `/停服饥荒` → `/启动饥荒` 完整重启
+
+---
+
+**Q: 游戏客户端连不上服务器**
+
+排查步骤：
+1. `/饥荒状态` 确认服务器在线
+2. 确认 UDP 端口（10999/11000）已在防火墙/安全组中放行
+3. 如果用了 NAT 转发，确认转发规则正确
+4. 使用 `c_connect("服务器公网IP", 端口)` 连接，其中的 IP 替换为你的实际公网 IP

@@ -63,12 +63,12 @@ def _write_mod_overrides(klei_root: str, cluster: str, shard: str, content: str)
 
 
 def _append_line(filepath: str, line: str) -> None:
-    """安全追加一行到文件（去重）。"""
+    """安全追加一行到文件（去重，精确行匹配）。"""
     p = Path(filepath)
     if p.exists():
-        text = p.read_text(errors="utf-8")
-        if line not in text:
-            p.write_text(text.rstrip() + "\n" + line + "\n", encoding="utf-8")
+        lines = p.read_text(errors="utf-8").splitlines()
+        if line not in lines:
+            p.write_text("\n".join(lines) + "\n" + line + "\n", encoding="utf-8")
     else:
         p.write_text(line + "\n", encoding="utf-8")
 

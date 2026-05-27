@@ -189,7 +189,7 @@ class DSTManagerPlugin(Star):
             "  1. 打开 DST，进入主菜单\n"
             "  2. 按 ~ 键打开控制台\n"
             "  3. 输入：\n"
-            '    c_connect("47.93.186.189", 10999)\n'
+            '    c_connect("你的服务器IP", 10999)\n'
             "  4. 回车即可进入\n\n"
             "💡 如果连不上，先确认服务器在线 /饥荒状态"
         )
@@ -228,7 +228,10 @@ class DSTManagerPlugin(Star):
         result = await asyncio.get_event_loop().run_in_executor(
             None, mod_manager.add_mod, wid, self._dst_base, self._klei_root, self._cluster, self._steamcmd_timeout,
         )
-        yield event.plain_result(f"✅ 已添加模组 {wid}，重启服务器后生效（/停服饥荒 → /启动饥荒）")
+        if "warning" in result:
+            yield event.plain_result(f"⚠️ 模组 {wid} 配置已写入但下载可能失败：{result}\n重启服务器看效果（/停服饥荒 → /启动饥荒）")
+        else:
+            yield event.plain_result(f"✅ 已添加模组 {wid}，重启服务器后生效（/停服饥荒 → /启动饥荒）")
 
     @filter.command("卸模组")
     async def cmd_remove_mod(self, event: AstrMessageEvent):
