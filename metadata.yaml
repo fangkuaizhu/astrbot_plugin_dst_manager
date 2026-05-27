@@ -1,0 +1,9 @@
+name: astrbot_plugin_dst_manager
+display_name: DST 饥荒服务器管家
+short_desc: 通过 QQ 指令管理饥荒联机服务器（启动/冻结/停服/状态/模组管理）
+desc: 在 Docker 宿主上管理 Don't Starve Together 专用服务器。支持 PID 命名空间共享模式下的进程管理，以及 steamcmd 模组安装/卸载。
+author: Hanako
+version: 3.1.0
+astrbot_version: ">=4.16"
+support_platforms:
+  - aiocqhttp

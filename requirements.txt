@@ -1,0 +1,2 @@
+# 无需外部依赖
+# 插件依赖：astrbot（框架自带）、subprocess/os/signal（标准库）

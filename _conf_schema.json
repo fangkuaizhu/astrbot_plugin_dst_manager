@@ -1,0 +1,38 @@
+{
+  "dst_base": {
+    "description": "DST 安装目录（容器内路径）",
+    "type": "string",
+    "default": "/dst-server",
+    "hint": "服务器文件所在目录，包含 bin64/、data/、start.sh 等"
+  },
+  "klei_root": {
+    "description": "Klei 存档根目录（容器内路径）",
+    "type": "string",
+    "default": "/root/.klei",
+    "hint": "包含 DoNotStarveTogether/<Cluster>/ 等存档文件"
+  },
+  "cluster": {
+    "description": "集群名称",
+    "type": "string",
+    "default": "DSTWhalesCluster",
+    "hint": "对应 ~/.klei/DoNotStarveTogether/<Cluster>/ 目录名"
+  },
+  "startup_wait_seconds": {
+    "description": "启动等待时间（秒）",
+    "type": "int",
+    "default": 90,
+    "hint": "启动脚本执行后等待服务器初始化的秒数"
+  },
+  "graceful_term_wait": {
+    "description": "优雅关闭等待时间（秒）",
+    "type": "int",
+    "default": 15,
+    "hint": "SIGTERM 后等待进程自行退出的秒数"
+  },
+  "mod_steamcmd_timeout": {
+    "description": "模组下载超时（秒）",
+    "type": "int",
+    "default": 180,
+    "hint": "steamcmd 下载单个模组的最大等待时间"
+  }
+}
