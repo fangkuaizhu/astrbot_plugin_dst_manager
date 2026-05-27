@@ -51,8 +51,7 @@ class DSTManagerPlugin(Star):
             "/饥荒状态      查看服务器状态\n"
             "/启动饥荒      启动服务器\n"
             "/冻结饥荒      暂停进程（秒级恢复）\n"
-            "/解冻饥荒      恢复冻结的进程\n"
-            "/恢复饥荒      同解冻\n"
+            "/恢复饥荒      恢复冻结的进程\n"
             "/停服饥荒      完全关闭服务器\n"
             "/重启饥荒      重启服务器\n"
             "/连接教程      查看如何连接\n"
@@ -83,7 +82,7 @@ class DSTManagerPlugin(Star):
         )
         yield event.plain_result(f"🎮 启动完成\n{info}")
 
-    # ── 冻结/解冻 ─────────────────────────────────────────
+    # ── 冻结/恢复 ─────────────────────────────────────────
 
     @filter.command("冻结饥荒")
     async def cmd_freeze(self, event: AstrMessageEvent):
@@ -133,7 +132,7 @@ class DSTManagerPlugin(Star):
 
     @filter.command("恢复饥荒")
     async def cmd_thaw_alias(self, event: AstrMessageEvent):
-        """"恢复饥荒" 是 "解冻饥荒" 的别名。"""
+        """"恢复饥荒" 是解冻功能的别名。"""
         # Delegate to the thaw handler.
         async for result in self.cmd_thaw(event):
             yield result
